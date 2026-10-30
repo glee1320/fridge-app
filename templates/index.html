@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>My Fridge</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+    <style>
+        .expired { color: #d9534f; font-weight: bold; }
+        .soon    { color: #e0a800; font-weight: bold; }
+        .fresh   { color: #28a745; }
+        td form  { margin: 0; }
+        td button { padding: 0.25rem 0.75rem; margin: 0; }
+    </style>
+</head>
+<body>
+    <main class="container">
+        <h1>My Fridge</h1>
+
+        <!-- Form to add a new item -->
+        <article>
+            <h3>Add an item</h3>
+            <form action="/add" method="POST">
+                <div class="grid">
+                    <input type="text" name="name" placeholder="Item (e.g. Yogurt)" required>
+                    <input type="text" name="quantity" placeholder="Quantity (e.g. 2 cups)">
+                    <input type="date" name="expiry_date" required>
+                </div>
+                <button type="submit">Add to fridge</button>
+            </form>
+        </article>
+
+        <p>{{ items|length }} items, soonest-expiring first</p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Item</th>
+                    <th>Quantity</th>
+                    <th>Expires</th>
+                    <th>Days left</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in items %}
+                <tr>
+                    <td>{{ item.name }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>{{ item.expiry_date }}</td>
+                    <td class="{{ item.status }}">
+                        {% if item.days_left < 0 %}
+                            Expired
+                        {% elif item.days_left == 0 %}
+                            Today!
+                        {% else %}
+                            {{ item.days_left }} days
+                        {% endif %}
+                    </td>
+                    <td>
+                        <form action="/delete/{{ item.id }}" method="POST">
+                            <button type="submit" class="secondary outline">Used</button>
+                        </form>
+                    </td>
+                </tr>
+                {% else %}
+                <tr><td colspan="5">Your fridge is empty. Add something above!</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </main>
+</body>
+</html>
